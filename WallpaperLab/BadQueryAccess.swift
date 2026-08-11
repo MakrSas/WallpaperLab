@@ -37,9 +37,10 @@ enum BadQueryDirectory {
 enum PosterBoardLocator {
     static let applicationsRoot = "/var/mobile/Containers/Data/Application"
 
-    static func locate(lease: BadQueryLease) throws -> URL {
-        let fileManager = FileManager.default
+    static func locate(lease: BadQueryLease, report: (String) -> Void) throws -> URL {
         let candidates = try BadQueryDirectory.immediateChildren(of: applicationsRoot)
+        report("Найдено контейнеров приложений: \(candidates.count)")
+        var readableMetadata = 0
 
         for candidate in candidates {
             guard candidate.lastPathComponent.count >= 20 else { continue }
@@ -48,15 +49,19 @@ enum PosterBoardLocator {
                 let probe = BadQueryLease()
                 try probe.grant(candidate.path)
                 let metadata = candidate.appendingPathComponent(".com.apple.mobile_container_manager.metadata.plist")
+                try probe.grant(metadata.path)
                 if let values = NSDictionary(contentsOf: metadata),
-                   values["MCMMetadataIdentifier"] as? String == "com.apple.PosterBoard" {
+                   let identifier = values["MCMMetadataIdentifier"] as? String {
+                    readableMetadata += 1
+                    if identifier != "com.apple.PosterBoard" { continue }
                     try lease.grant(candidate.path)
+                    try lease.grant(metadata.path)
                     return candidate
                 }
             } catch {
                 continue
             }
         }
-        throw WallpaperLabError.posterBoardUnavailable
+        throw WallpaperLabError.posterBoardUnavailable("Проверено UUID: \(candidates.count), доступны metadata: \(readableMetadata).")
     }
 }

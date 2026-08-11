@@ -35,7 +35,7 @@ struct ImportResult {
 enum WallpaperLabError: LocalizedError {
     case inaccessible(String)
     case invalidPackage(String)
-    case posterBoardUnavailable
+    case posterBoardUnavailable(String)
     case unsafeTarget
     case nothingToRollback
 
@@ -43,10 +43,9 @@ enum WallpaperLabError: LocalizedError {
         switch self {
         case .inaccessible(let detail): return "Не удалось получить доступ: \(detail)"
         case .invalidPackage(let detail): return "Пакет не подходит: \(detail)"
-        case .posterBoardUnavailable: return "Контейнер PosterBoard не найден. Запусти приложение ещё раз после перезагрузки SpringBoard."
+        case .posterBoardUnavailable(let detail): return "Контейнер PosterBoard не найден. \(detail)"
         case .unsafeTarget: return "Откат остановлен: путь не прошёл проверку безопасности."
         case .nothingToRollback: return "Нет последней операции для отката."
         }
     }
 }
-

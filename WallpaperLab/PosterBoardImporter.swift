@@ -23,7 +23,7 @@ struct PosterBoardImporter {
 
         report("Ищу контейнер PosterBoard")
         let lease = BadQueryLease()
-        let posterBoardRoot = try PosterBoardLocator.locate(lease: lease)
+        let posterBoardRoot = try PosterBoardLocator.locate(lease: lease, report: report)
         try lease.grant(posterBoardRoot.path)
         let extensionsRoot = try locateExtensions(in: posterBoardRoot, lease: lease)
 
@@ -72,7 +72,7 @@ struct PosterBoardImporter {
 
         report("Ищу контейнер PosterBoard")
         let lease = BadQueryLease()
-        let posterBoardRoot = try PosterBoardLocator.locate(lease: lease)
+        let posterBoardRoot = try PosterBoardLocator.locate(lease: lease, report: report)
         let extensionsRoot = try locateExtensions(in: posterBoardRoot, lease: lease).standardizedFileURL.path
 
         for path in manifest.importedPaths {
@@ -169,7 +169,7 @@ struct PosterBoardImporter {
             .filter { (try? $0.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true }
             .sorted { (Int($0.lastPathComponent) ?? 0) > (Int($1.lastPathComponent) ?? 0) }
         guard let store = candidates.first, Int(store.lastPathComponent) != nil else {
-            throw WallpaperLabError.posterBoardUnavailable
+            throw WallpaperLabError.posterBoardUnavailable("В контейнере нет хранилища расширений.")
         }
         let extensions = store.appendingPathComponent("Extensions", isDirectory: true)
         try lease.grant(extensions.path, create: true)
