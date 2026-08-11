@@ -113,7 +113,6 @@ struct ContentView: View {
                     HStack(spacing: 12) {
                         Image(systemName: model.isWorking ? "arrow.triangle.2.circlepath" : "checkmark.seal.fill")
                             .foregroundStyle(model.isWorking ? .blue : .green)
-                            .symbolEffect(.rotate, isActive: model.isWorking)
                         Text(model.activity)
                         Spacer()
                         if model.isWorking { ProgressView() }
