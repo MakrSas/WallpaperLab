@@ -1,0 +1,50 @@
+name: Build Wallpaper Lab
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build-unsigned-ipa:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate project
+        run: xcodegen generate
+
+      - name: Build unsigned app
+        run: >-
+          xcodebuild
+          -project WallpaperLab.xcodeproj
+          -scheme WallpaperLab
+          -configuration Release
+          -sdk iphoneos
+          -derivedDataPath build
+          CODE_SIGNING_ALLOWED=NO
+          CODE_SIGN_IDENTITY=""
+          build
+
+      - name: Package IPA
+        run: |
+          mkdir -p Payload
+          cp -R build/Build/Products/Release-iphoneos/WallpaperLab.app Payload/
+          ditto -c -k --sequesterRsrc --keepParent Payload WallpaperLab-unsigned.ipa
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: WallpaperLab-unsigned-ipa
+          path: WallpaperLab-unsigned.ipa
+          if-no-files-found: error
+

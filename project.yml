@@ -1,0 +1,26 @@
+name: WallpaperLab
+options:
+  bundleIdPrefix: com.makrsas
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+packages:
+  ZIPFoundation:
+    url: https://github.com/weichsel/ZIPFoundation.git
+    from: 0.9.19
+targets:
+  WallpaperLab:
+    type: application
+    platform: iOS
+    sources:
+      - path: WallpaperLab
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.makrsas.wallpaperlab
+        SWIFT_VERSION: "5.0"
+        SWIFT_OBJC_BRIDGING_HEADER: WallpaperLab/WallpaperLab-Bridging-Header.h
+        INFOPLIST_FILE: WallpaperLab/Info.plist
+        TARGETED_DEVICE_FAMILY: "1"
+    dependencies:
+      - package: ZIPFoundation
+
